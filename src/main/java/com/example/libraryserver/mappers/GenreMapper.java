@@ -9,12 +9,9 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring")
 public interface GenreMapper {
     GenreDTO genreEntityToGenreDTO(GenreEntity genreEntity);
+
     GenreEntity genreDTOToGenreEntity(GenreDTO genreDTO);
 
-    //    @Mapping(target = "user", ignore = true)
-    //    @Mapping(target = "book", ignore = true)
-    //    @Named("loanEntityToLoanDTOWithoutUserAndBook")
-    //    LoanDTO loanEntityToLoanDTOWithoutUserAndBook(LoanEntity loanEntity);
     @Mapping(target = "books", ignore = true)
     @Named("genreEntityToGenreDTOWithoutBooks")
     GenreDTO genreEntityToGenreDTOWithoutBooks(GenreEntity genreEntity);
