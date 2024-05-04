@@ -2,7 +2,6 @@ package com.example.libraryserver.controllers;
 
 import com.example.libraryserver.requests.books.CreateBookRequest;
 import com.example.libraryserver.requests.books.UpdateBookRequest;
-import com.example.libraryserver.responses.books.GetBooksResponse;
 import com.example.libraryserver.responses.general.InfoResponse;
 import com.example.libraryserver.services.BookService;
 import lombok.RequiredArgsConstructor;
@@ -23,20 +22,18 @@ public class BookController {
     }
 
     @GetMapping("/get")
-    public GetBooksResponse getBooks() {
+    public ResponseEntity<?> getBooks() {
         return bookService.getAllBooks();
     }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getBookById(@PathVariable("id") Long id, @RequestParam String type) {
-        switch (type) {
-            case "full":
-                return bookService.getBookByIdFull(id);
-            case "short":
-                return bookService.getBookByIdShort(id);
-            default:
-                return new ResponseEntity<>(new InfoResponse("Invalid type. full and short keys supported"), HttpStatus.BAD_REQUEST);
-        }
+        return switch (type) {
+            case "full" -> bookService.getBookByIdFull(id);
+            case "short" -> bookService.getBookByIdShort(id);
+            default ->
+                    new ResponseEntity<>(new InfoResponse("Invalid type. full and short keys supported"), HttpStatus.BAD_REQUEST);
+        };
     }
 
     @PatchMapping("/update")
