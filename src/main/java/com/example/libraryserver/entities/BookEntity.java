@@ -40,6 +40,7 @@ public class BookEntity {
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "book")
     @JsonBackReference(value = "loan-book reference")
+    @JsonManagedReference(value = "book-loan reference")
     private List<LoanEntity> loans;
 
     @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)

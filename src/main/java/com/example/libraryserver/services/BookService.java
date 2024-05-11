@@ -9,7 +9,6 @@ import com.example.libraryserver.repositories.BookRepository;
 import com.example.libraryserver.repositories.GenreRepository;
 import com.example.libraryserver.requests.books.CreateBookRequest;
 import com.example.libraryserver.requests.books.UpdateBookRequest;
-import com.example.libraryserver.responses.books.GetBookResponse;
 import com.example.libraryserver.responses.books.GetBooksAmountResponse;
 import com.example.libraryserver.responses.books.GetBooksResponse;
 import com.example.libraryserver.responses.general.InfoResponse;
@@ -32,8 +31,10 @@ public class BookService {
     private final GenreRepository genreRepository;
     private final AuthorRepository authorRepository;
     private final BookMapper bookMapper;
+
     @Transactional
     public ResponseEntity<InfoResponse> createBook(CreateBookRequest createBookRequest) {
+        // not a DTO cause nearly impossible to implement
         try {
             BookEntity bookEntity = BookEntity.builder()
                     .title(createBookRequest.getTitle())
@@ -48,39 +49,24 @@ public class BookService {
             throw new DatabaseConnectionException("Genre was not created due to problems connecting to the database");
         }
     }
+
     @Transactional
-    public ResponseEntity<?> getBookById(Long id) {
+    public ResponseEntity<?> getBookByIdFull(Long id) {
         BookEntity bookEntity = bookRepository.findBookEntityById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book with id " + id + " not found"));
-        BookDTO bookDTO = bookMapper.bookEntityToBookDTO(bookEntity);
-
-
-//        GetBookResponse getBookResponse = GetBookResponse.builder()
-//                .id(bookEntity.getId())
-//                .title(bookEntity.getTitle())
-//                .quantity(bookEntity.getQuantity())
-//                .authors(bookEntity.getAuthors())
-//                .description(bookEntity.getDescription())
-//                .genres(bookEntity.getGenres())
-//                .build();
-
+        BookDTO bookDTO = bookMapper.bookEntityToBookDTOWithoutBookAndUserInLoans(bookEntity);
         return new ResponseEntity<>(bookDTO, HttpStatus.OK);
     }
+
     @Transactional
-    public GetBooksResponse getAllBooks() {
+    public ResponseEntity<?> getAllBooks() {
         List<BookEntity> bookEntityList = bookRepository.findAll();
-        List<GetBookResponse> getBookResponseList = bookEntityList.stream()
-                .map(bookEntity -> GetBookResponse.builder()
-                        .id(bookEntity.getId())
-                        .title(bookEntity.getTitle())
-                        .quantity(bookEntity.getQuantity())
-                        .authors(bookEntity.getAuthors())
-                        .description(bookEntity.getDescription())
-                        .genres(bookEntity.getGenres())
-                        .build())
-                .toList();
-        return new GetBooksResponse(getBookResponseList);
+        List<BookDTO> bookDTOs = bookEntityList.stream()
+                .map(bookMapper::bookEntityToBookDTOWithoutAuthorsLoansGenres)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(new GetBooksResponse(bookDTOs), HttpStatus.OK);
     }
+
     @Transactional
     public ResponseEntity<InfoResponse> updateBook(UpdateBookRequest updateBookRequest) {
         BookEntity bookEntity = bookRepository.findBookEntityById(updateBookRequest.getId())
@@ -107,6 +93,7 @@ public class BookService {
             throw new DatabaseConnectionException("Book was not updated due to problems connecting to the database");
         }
     }
+
     @Transactional
     public ResponseEntity<InfoResponse> deleteBook(Long id) {
         try {
@@ -119,41 +106,36 @@ public class BookService {
 
     @Transactional
     public ResponseEntity<?> getPage(int page, int size) {
-        Long startId = (long) size * (page - 1L) + 1L;
-        Long endId = startId + size - 1L;
-        List<BookEntity> bookEntities = bookRepository.findAllByIdBetween(startId,endId);
-        List<GetBookResponse> getBookResponseList = bookEntities.stream()
-                .map(bookEntity -> GetBookResponse.builder()
-                        .id(bookEntity.getId())
-                        .title(bookEntity.getTitle())
-                        .quantity(bookEntity.getQuantity())
-                        .authors(bookEntity.getAuthors())
-                        .description(bookEntity.getDescription())
-                        .genres(bookEntity.getGenres())
-                        .build())
+        long startId = (long) size * (page - 1L) + 1L;
+        long endId = startId + size - 1L;
+        List<BookEntity> bookEntities = bookRepository.findAllByIdBetween(startId, endId);
+        List<BookDTO> bookDTOs = bookEntities.stream()
+                .map(bookMapper::bookEntityToBookDTOWithoutAuthorsLoansGenres)
                 .collect(Collectors.toList());
-
-        return new ResponseEntity<>(new GetBooksResponse(getBookResponseList), HttpStatus.OK);
+        return new ResponseEntity<>(new GetBooksResponse(bookDTOs), HttpStatus.OK);
     }
+
     @Transactional
     public ResponseEntity<?> getAmount() {
         Long amount = bookRepository.count();
-        return new ResponseEntity<GetBooksAmountResponse>(new GetBooksAmountResponse(amount), HttpStatus.OK);
+        return new ResponseEntity<>(new GetBooksAmountResponse(amount), HttpStatus.OK);
     }
+
     @Transactional
     public ResponseEntity<?> getByTitle(String title) {
         List<BookEntity> bookEntities = bookRepository.findBookEntitiesByTitleContaining(title);
         // TODO: reconsider about using this
-        List<GetBookResponse> getBookResponseList = bookEntities.stream()
-                .map(bookEntity -> GetBookResponse.builder()
-                        .id(bookEntity.getId())
-                        .title(bookEntity.getTitle())
-                        .quantity(bookEntity.getQuantity())
-                        .authors(bookEntity.getAuthors())
-                        .description(bookEntity.getDescription())
-                        .genres(bookEntity.getGenres())
-                        .build())
+        List<BookDTO> bookDTOs = bookEntities.stream()
+                .map(bookMapper::bookEntityToBookDTOWithoutBookAndUserInLoans)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(new GetBooksResponse(getBookResponseList), HttpStatus.OK);
+        return new ResponseEntity<>(new GetBooksResponse(bookDTOs), HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<?> getBookByIdShort(Long id) {
+        BookEntity bookEntity = bookRepository.findBookEntityById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book with id " + id + " not found"));
+        BookDTO bookDTO = bookMapper.bookEntityToBookDTOWithoutAuthorsLoansGenres(bookEntity);
+        return new ResponseEntity<>(bookDTO, HttpStatus.OK);
     }
 }

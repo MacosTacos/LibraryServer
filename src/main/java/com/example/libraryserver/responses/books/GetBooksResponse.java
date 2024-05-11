@@ -1,5 +1,6 @@
 package com.example.libraryserver.responses.books;
 
+import com.example.libraryserver.dtos.BookDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetBooksResponse {
-    private List<GetBookResponse> books;
+    private List<BookDTO> books;
 }

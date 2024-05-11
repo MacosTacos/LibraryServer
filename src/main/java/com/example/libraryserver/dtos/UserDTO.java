@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDTO {
     private Long id;
-    private Long version;
+    //private Long version;
     private String login;
     private String password;
     private String name;

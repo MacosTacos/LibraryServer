@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GenreDTO {
     private Long id;
-    private Long version;
+    //private Long version;
     private String name;
     private String info;
     private List<BookDTO> books;

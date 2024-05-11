@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AuthorDTO {
     private Long id;
-    private Long version;
+    //private Long version;
     private String name;
     private String surname;
     private String info;

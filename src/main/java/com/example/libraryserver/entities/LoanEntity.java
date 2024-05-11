@@ -33,7 +33,8 @@ public class LoanEntity {
 
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @JoinColumn
-    //@JsonManagedReference(value = "loan-user reference")
+    @JsonManagedReference(value = "loan-user reference")
+    @JsonBackReference(value = "book-loan reference")
     private UserEntity user;
 
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)

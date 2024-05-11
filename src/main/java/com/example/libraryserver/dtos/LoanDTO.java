@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LoanDTO {
     private Long id;
-    private Long version;
+    //private Long version;
     private LocalDateTime loanDate;
     private int status; // 1- книга на руках у юзера, 2- книга возвращена
     private UserDTO user;

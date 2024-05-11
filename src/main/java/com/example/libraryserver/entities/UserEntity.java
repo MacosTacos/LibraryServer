@@ -39,7 +39,7 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "user")
-    //@JsonBackReference(value = "loan-user reference")
+    @JsonBackReference(value = "loan-user reference")
     private List<LoanEntity> loans;
 
     @Override
