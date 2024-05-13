@@ -24,12 +24,12 @@ public class AuthorController {
     }
 
     @GetMapping("/get")
-    public GetAuthorsResponse getAuthors() {
+    public ResponseEntity<?> getAuthors() {
         return authorService.getAllAuthors();
     }
 
     @GetMapping("/get/{id}")
-    public GetAuthorResponse getAuthorById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getAuthorById(@PathVariable("id") Long id) {
         return authorService.getAuthorById(id);
     }
 

@@ -1,9 +1,11 @@
 package com.example.libraryserver.services;
 
+import com.example.libraryserver.dtos.AuthorDTO;
 import com.example.libraryserver.entities.AuthorEntity;
 import com.example.libraryserver.entities.BookEntity;
 import com.example.libraryserver.exceptions.DatabaseConnectionException;
 import com.example.libraryserver.exceptions.ResourceNotFoundException;
+import com.example.libraryserver.mappers.AuthorMapper;
 import com.example.libraryserver.repositories.AuthorRepository;
 import com.example.libraryserver.repositories.BookRepository;
 import com.example.libraryserver.requests.authors.CreateAuthorRequest;
@@ -21,12 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
+    private final AuthorMapper authorMapper;
 
     @Transactional
     public ResponseEntity<InfoResponse> createAuthor(CreateAuthorRequest createAuthorRequest) {
@@ -43,31 +47,19 @@ public class AuthorService {
         }
     }
     @Transactional
-    public GetAuthorResponse getAuthorById(Long id) {
+    public ResponseEntity<?> getAuthorById(Long id) {
         AuthorEntity authorEntity = authorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author with id " + id + " not found"));
-        GetAuthorResponse getAuthorResponse = GetAuthorResponse.builder()
-                .id(authorEntity.getId())
-                .name(authorEntity.getName())
-                .surname(authorEntity.getSurname())
-                .info(authorEntity.getInfo())
-                .books(authorEntity.getBooks())
-                .build();
-        return getAuthorResponse;
+        AuthorDTO authorDTO = authorMapper.authorEntityToAuthorDTOWithoutAuthorsAndGenresAndLoansInBooks(authorEntity);
+        return new ResponseEntity<>(authorDTO, HttpStatus.OK);
     }
     @Transactional
-    public GetAuthorsResponse getAllAuthors() {
+    public ResponseEntity<?> getAllAuthors() {
         List<AuthorEntity> authors = authorRepository.findAll();
-        List<GetAuthorResponse> getAuthorResponseList = authors.stream()
-                .map(authorEntity -> GetAuthorResponse.builder()
-                        .id(authorEntity.getId())
-                        .name(authorEntity.getName())
-                        .surname(authorEntity.getSurname())
-                        .info(authorEntity.getInfo())
-                        .books(authorEntity.getBooks())
-                        .build())
+        List<AuthorDTO> authorDTOS = authors.stream()
+                .map(authorMapper::authorEntityToAuthorDTOWithoutAuthorsAndGenresAndLoansInBooks)
                 .toList();
-        return new GetAuthorsResponse(getAuthorResponseList);
+        return new ResponseEntity<>(authorDTOS, HttpStatus.OK);
     }
     @Transactional
     public ResponseEntity<InfoResponse> updateAuthor(UpdateAuthorRequest updateAuthorRequest) {
