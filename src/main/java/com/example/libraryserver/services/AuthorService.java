@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,29 +52,14 @@ public class AuthorService {
                 .orElseThrow(() -> new ResourceNotFoundException("Author with id " + id + " not found"));
         AuthorDTO authorDTO = authorMapper.authorEntityToAuthorDTOWithoutAuthorsAndGenresAndLoansInBooks(authorEntity);
         return new ResponseEntity<>(authorDTO, HttpStatus.OK);
-
-//        GetAuthorResponse getAuthorResponse = GetAuthorResponse.builder()
-//                .id(authorEntity.getId())
-//                .name(authorEntity.getName())
-//                .surname(authorEntity.getSurname())
-//                .info(authorEntity.getInfo())
-//                .books(authorEntity.getBooks())
-//                .build();
-//        return getAuthorResponse;
     }
     @Transactional
-    public GetAuthorsResponse getAllAuthors() {
+    public ResponseEntity<?> getAllAuthors() {
         List<AuthorEntity> authors = authorRepository.findAll();
-        List<GetAuthorResponse> getAuthorResponseList = authors.stream()
-                .map(authorEntity -> GetAuthorResponse.builder()
-                        .id(authorEntity.getId())
-                        .name(authorEntity.getName())
-                        .surname(authorEntity.getSurname())
-                        .info(authorEntity.getInfo())
-                        .books(authorEntity.getBooks())
-                        .build())
+        List<AuthorDTO> authorDTOS = authors.stream()
+                .map(authorMapper::authorEntityToAuthorDTOWithoutAuthorsAndGenresAndLoansInBooks)
                 .toList();
-        return new GetAuthorsResponse(getAuthorResponseList);
+        return new ResponseEntity<>(authorDTOS, HttpStatus.OK);
     }
     @Transactional
     public ResponseEntity<InfoResponse> updateAuthor(UpdateAuthorRequest updateAuthorRequest) {

@@ -11,7 +11,7 @@ public interface AuthorMapper {
     //AuthorDTO authorEntityToAuthorDTO(AuthorEntity authorEntity);
     AuthorEntity authorDTOToAuthorEntity(AuthorDTO authorDTO);
 
-    @Mapping(target = "books", qualifiedByName = "bookEntityToBookDTOWithoutAuthorsLoansGenres")
+    @Mapping(target = "books", qualifiedByName = "bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")
     AuthorDTO authorEntityToAuthorDTOWithoutAuthorsAndGenresAndLoansInBooks(AuthorEntity authorEntity);
 
     @Mapping(target = "books", ignore = true)

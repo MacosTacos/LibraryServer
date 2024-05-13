@@ -24,7 +24,7 @@ public class AuthorController {
     }
 
     @GetMapping("/get")
-    public GetAuthorsResponse getAuthors() {
+    public ResponseEntity<?> getAuthors() {
         return authorService.getAllAuthors();
     }
 

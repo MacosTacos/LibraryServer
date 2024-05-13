@@ -56,11 +56,11 @@ public interface BookMapper {
     @Named("bookEntityToBookDTOWithoutAuthorsLoansGenres")
     BookDTO bookEntityToBookDTOWithoutAuthorsLoansGenres(BookEntity bookEntity);
 
-//    @Mapping(target = "loans", ignore = true)
-//    @Mapping(target = "authors", ignore = true)
-//    @Mapping(target = "genres", qualifiedByName = "genreEntityToGenreDTOWithoutBooks")
-//    @Named("bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")
-//    BookDTO bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans(BookEntity bookEntity);
+    @Mapping(target = "loans", ignore = true)
+    @Mapping(target = "authors", ignore = true)
+    @Mapping(target = "genres", qualifiedByName = "genreEntityToGenreDTOWithoutBooks")
+    @Named("bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")
+    BookDTO bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans(BookEntity bookEntity);
 
     //BookDTO bookEntityToBookDTO(BookEntity bookEntity);
 

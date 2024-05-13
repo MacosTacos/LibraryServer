@@ -64,7 +64,7 @@ public class BookService {
         List<BookDTO> bookDTOs = bookEntityList.stream()
                 .map(bookMapper::bookEntityToBookDTOWithoutAuthorsLoansGenres)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(new GetBooksResponse(bookDTOs), HttpStatus.OK);
+        return new ResponseEntity<>(bookDTOs, HttpStatus.OK);
     }
 
     @Transactional
