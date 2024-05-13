@@ -4,6 +4,7 @@ import com.example.libraryserver.entities.BookEntity;
 import com.example.libraryserver.dtos.BookDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring", uses = {LoanMapper.class, AuthorMapper.class, GenreMapper.class})
 public interface BookMapper {
@@ -52,9 +53,16 @@ public interface BookMapper {
     @Mapping(target = "genres", ignore = true)
     @Mapping(target = "loans", ignore = true)
     @Mapping(target = "authors", ignore = true)
+    @Named("bookEntityToBookDTOWithoutAuthorsLoansGenres")
     BookDTO bookEntityToBookDTOWithoutAuthorsLoansGenres(BookEntity bookEntity);
 
-    BookDTO bookEntityToBookDTO(BookEntity bookEntity);
+//    @Mapping(target = "loans", ignore = true)
+//    @Mapping(target = "authors", ignore = true)
+//    @Mapping(target = "genres", qualifiedByName = "genreEntityToGenreDTOWithoutBooks")
+//    @Named("bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")
+//    BookDTO bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans(BookEntity bookEntity);
+
+    //BookDTO bookEntityToBookDTO(BookEntity bookEntity);
 
     BookEntity bookDTOToBookEntity(BookDTO bookDTO);
 }
