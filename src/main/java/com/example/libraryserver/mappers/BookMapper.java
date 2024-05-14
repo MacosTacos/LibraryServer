@@ -62,7 +62,6 @@ public interface BookMapper {
     @Named("bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")
     BookDTO bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans(BookEntity bookEntity);
 
-    //BookDTO bookEntityToBookDTO(BookEntity bookEntity);
 
     BookEntity bookDTOToBookEntity(BookDTO bookDTO);
 }

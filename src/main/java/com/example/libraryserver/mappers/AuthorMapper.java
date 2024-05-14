@@ -8,7 +8,6 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring", uses = {BookMapper.class})
 public interface AuthorMapper {
-    //AuthorDTO authorEntityToAuthorDTO(AuthorEntity authorEntity);
     AuthorEntity authorDTOToAuthorEntity(AuthorDTO authorDTO);
 
     @Mapping(target = "books", qualifiedByName = "bookEntityToBookDTOWithoutBooksInGenresAndAuthorsAndLoans")

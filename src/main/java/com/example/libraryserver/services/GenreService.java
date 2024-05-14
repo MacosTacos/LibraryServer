@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,13 +57,6 @@ public class GenreService {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre with id " + id + " not found"));
         GenreDTO genreDTO = genreMapper.genreEntityToGenreDTOWithShortBooks(genreEntity);
-
-//        GetGenreResponse getGenreResponse = GetGenreResponse.builder()
-//                .id(genreEntity.getId())
-//                .name(genreEntity.getName())
-//                .info(genreEntity.getInfo())
-//                .books(genreEntity.getBooks())
-//                .build();
         return new ResponseEntity<>(genreDTO, HttpStatus.OK);
     }
     @Transactional
@@ -86,16 +77,6 @@ public class GenreService {
                 .map(genreMapper::genreEntityToGenreDTOWithShortBooks)
                 .toList();
         return new ResponseEntity<>(genreDTOS, HttpStatus.OK);
-
-//        List<GetGenreResponse> getGenreResponseList = genreEntityList.stream()
-//                .map(genreEntity -> GetGenreResponse.builder()
-//                        .id(genreEntity.getId())
-//                        .name(genreEntity.getName())
-//                        .info(genreEntity.getInfo())
-//                        .books(genreEntity.getBooks())
-//                        .build())
-//                .toList();
-//        return new GetGenresResponse(getGenreResponseList);
     }
     @Transactional
     public ResponseEntity<InfoResponse> updateGenre(UpdateGenreRequest updateGenreRequest) {
