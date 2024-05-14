@@ -25,8 +25,7 @@ public class LoanController {
     }
 
     @GetMapping("/get/{id}")
-    //TODO: исправить этот ужас
-    public GetLoanResponse getLoanById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getLoanById(@PathVariable("id") Long id) {
         return loanService.getLoanById(id);
     }
 
