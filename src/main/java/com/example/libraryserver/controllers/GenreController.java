@@ -24,7 +24,7 @@ public class GenreController {
     }
 
     @GetMapping("/get/full/{id}")
-    public GetGenreResponse getGenreByIdFull(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getGenreByIdFull(@PathVariable("id") Long id) {
         return genreService.getGenreByIdFull(id);
     }
 
@@ -34,7 +34,7 @@ public class GenreController {
     }
 
     @GetMapping("/get/full")
-    public GetGenresResponse getGenresFull() {
+    public ResponseEntity<?> getGenresFull() {
         return genreService.getAllGenresFull();
     }
 
