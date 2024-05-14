@@ -1,11 +1,13 @@
 package com.example.libraryserver.services;
 
+import com.example.libraryserver.dtos.LoanDTO;
 import com.example.libraryserver.entities.BookEntity;
 import com.example.libraryserver.entities.LoanEntity;
 import com.example.libraryserver.entities.UserEntity;
 import com.example.libraryserver.exceptions.DatabaseConnectionException;
 import com.example.libraryserver.exceptions.StatusConflictException;
 import com.example.libraryserver.exceptions.ResourceNotFoundException;
+import com.example.libraryserver.mappers.LoanMapper;
 import com.example.libraryserver.repositories.BookRepository;
 import com.example.libraryserver.repositories.LoanRepository;
 import com.example.libraryserver.repositories.UserRepository;
@@ -37,6 +39,9 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final LoanMapper loanMapper;
+
+
     public ResponseEntity<InfoResponse> createLoan(CreateLoanRequest createLoanRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (userRepository.findByLogin(authentication.getName())
@@ -54,22 +59,17 @@ public class LoanService {
             bookRepository.save(book);
             loanRepository.save(loanEntity);
             return new ResponseEntity<>(new InfoResponse("Loan created: id " + loanEntity.getId()), HttpStatus.CREATED);
-        }
-        else throw new ResourceNotFoundException("Book " + book.getTitle() + " not available");
+        } else throw new ResourceNotFoundException("Book " + book.getTitle() + " not available");
     }
+
     @Transactional
-    public GetLoanResponse getLoanById(Long id) {
+    public ResponseEntity<?> getLoanById(Long id) {
         LoanEntity loanEntity = loanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id " + id + " not found"));
-        GetLoanResponse getLoanResponse = GetLoanResponse.builder()
-                .id(loanEntity.getId())
-                .book(loanEntity.getBook())
-                .user(loanEntity.getUser())
-                .status(loanEntity.getStatus())
-                .loanDate(loanEntity.getLoanDate())
-                .build();
-        return getLoanResponse;
+        LoanDTO loanDTO = loanMapper.loanEntityToLoanDTO(loanEntity);
+        return new ResponseEntity<>(loanDTO, HttpStatus.OK);
     }
+
     @Transactional
     public ResponseEntity<InfoResponse> updateLoanStatus(UpdateLoanStatusRequest updateLoanStatusRequest) {
         LoanEntity loanEntity = loanRepository.findById(updateLoanStatusRequest.getId())
@@ -89,24 +89,16 @@ public class LoanService {
             //return new InfoResponse("Loan has been updated" + loanEntity);
         } else throw new StatusConflictException("Invalid status");
     }
+
     @Transactional
-    public ResponseEntity getAllLoans() {
+    public ResponseEntity<?> getAllLoans() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = (userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found " + authentication.getName())));
         List<LoanEntity> loanEntityList = user.getLoans();
-        GetLoansResponse getLoansResponse = GetLoansResponse.builder()
-                .loans(loanEntityList.stream()
-                        .map(loanEntity -> GetLoanResponse.builder()
-                                .id(loanEntity.getId())
-                                .book(loanEntity.getBook())
-                                //.user(loanEntity.getUser())
-                                .status(loanEntity.getStatus())
-                                .loanDate(loanEntity.getLoanDate())
-                                .build())
-                        .toList())
-                .build();
-
-        return new ResponseEntity<>(getLoansResponse, HttpStatus.OK);
+        List<LoanDTO> loanDTOS = loanEntityList.stream()
+                .map(loanMapper::loanEntityToLoanDTO)
+                .toList();
+        return new ResponseEntity<>(loanDTOS, HttpStatus.OK);
     }
 }

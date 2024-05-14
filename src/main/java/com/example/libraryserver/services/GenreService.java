@@ -1,8 +1,10 @@
 package com.example.libraryserver.services;
 
+import com.example.libraryserver.dtos.GenreDTO;
 import com.example.libraryserver.entities.GenreEntity;
 import com.example.libraryserver.exceptions.DatabaseConnectionException;
 import com.example.libraryserver.exceptions.ResourceNotFoundException;
+import com.example.libraryserver.mappers.GenreMapper;
 import com.example.libraryserver.repositories.GenreRepository;
 import com.example.libraryserver.requests.genres.CreateGenreRequest;
 import com.example.libraryserver.requests.genres.UpdateGenreRequest;
@@ -19,12 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GenreService {
 
     private final GenreRepository genreRepository;
+    private final GenreMapper genreMapper;
 
     @Transactional
     public ResponseEntity<InfoResponse> createGenre(CreateGenreRequest createGenreRequest) {
@@ -51,17 +55,18 @@ public class GenreService {
         return getGenreResponse;
     }
     @Transactional
-    public GetGenreResponse getGenreByIdFull(Long id) {
+    public ResponseEntity<?> getGenreByIdFull(Long id) {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre with id " + id + " not found"));
+        GenreDTO genreDTO = genreMapper.genreEntityToGenreDTOWithShortBooks(genreEntity);
 
-        GetGenreResponse getGenreResponse = GetGenreResponse.builder()
-                .id(genreEntity.getId())
-                .name(genreEntity.getName())
-                .info(genreEntity.getInfo())
-                .books(genreEntity.getBooks())
-                .build();
-        return getGenreResponse;
+//        GetGenreResponse getGenreResponse = GetGenreResponse.builder()
+//                .id(genreEntity.getId())
+//                .name(genreEntity.getName())
+//                .info(genreEntity.getInfo())
+//                .books(genreEntity.getBooks())
+//                .build();
+        return new ResponseEntity<>(genreDTO, HttpStatus.OK);
     }
     @Transactional
     public GetGenresResponse getAllGenresBrief() {
@@ -75,17 +80,22 @@ public class GenreService {
         return new GetGenresResponse(getGenreResponseList);
     }
     @Transactional
-    public GetGenresResponse getAllGenresFull() {
+    public ResponseEntity<?> getAllGenresFull() {
         List<GenreEntity> genreEntityList = genreRepository.findAll();
-        List<GetGenreResponse> getGenreResponseList = genreEntityList.stream()
-                .map(genreEntity -> GetGenreResponse.builder()
-                        .id(genreEntity.getId())
-                        .name(genreEntity.getName())
-                        .info(genreEntity.getInfo())
-                        .books(genreEntity.getBooks())
-                        .build())
+        List<GenreDTO> genreDTOS = genreEntityList.stream()
+                .map(genreMapper::genreEntityToGenreDTOWithShortBooks)
                 .toList();
-        return new GetGenresResponse(getGenreResponseList);
+        return new ResponseEntity<>(genreDTOS, HttpStatus.OK);
+
+//        List<GetGenreResponse> getGenreResponseList = genreEntityList.stream()
+//                .map(genreEntity -> GetGenreResponse.builder()
+//                        .id(genreEntity.getId())
+//                        .name(genreEntity.getName())
+//                        .info(genreEntity.getInfo())
+//                        .books(genreEntity.getBooks())
+//                        .build())
+//                .toList();
+//        return new GetGenresResponse(getGenreResponseList);
     }
     @Transactional
     public ResponseEntity<InfoResponse> updateGenre(UpdateGenreRequest updateGenreRequest) {
